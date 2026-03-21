@@ -1,6 +1,15 @@
 from processData import *
 from word2vec import Word2VecSkipGram
 
+CORPUS_FILEPATH = "text8"
+VOCAB_SIZE = 10000
+EMBEDDING_DIM = 100
+EPOCHS = 5
+SUBSAMPLE_THRESHOLD = 1e-5
+WINDOW_SIZE = 5
+LEARNING_RATE_START = 0.025
+LEARNING_RATE_MIN = 0.001
+K_NEGATIVES = 5
 
 def trainModel(
         corpusFilepath,
@@ -40,15 +49,6 @@ def trainModel(
 
 
 if __name__ == "__main__":
-    CORPUS_FILEPATH = "text8"
-    VOCAB_SIZE = 10000
-    EMBEDDING_DIM = 100
-    EPOCHS = 5
-    SUBSAMPLE_THRESHOLD = 1e-5
-    WINDOW_SIZE = 5
-    LEARNING_RATE_START = 0.025
-    LEARNING_RATE_MIN = 0.001
-    K_NEGATIVES = 5
 
     trainModel(
         CORPUS_FILEPATH,

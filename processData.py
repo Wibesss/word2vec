@@ -44,4 +44,18 @@ def generateSkipgramPairs(corpus, windowSize):
                 yield center,corpus[j]
 
 
+def getNegativeProbabilities(frequencies):
+    negativeProbabilities = frequencies ** 0.75
+    negativeProbabilities /= np.sum(negativeProbabilities)
+    return negativeProbabilities
+
+
+def sampleNegatives(negativeProbabilities, exclude, k):
+    negatives = []
+    while len(negatives) < k:
+        candidates = np.random.choice(len(negativeProbabilities), size=k * 2, p=negativeProbabilities)
+        for c in candidates:
+            if int(c) not in exclude and len(negatives) < k:
+                negatives.append(int(c))
+    return np.array(negatives, dtype=np.int32)
 

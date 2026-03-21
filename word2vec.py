@@ -32,7 +32,7 @@ class Word2VecSkipGram:
         vKNegatives = self.contextEmbeddings[negatives]
 
         positiveScore = self._sigmoid(vCenter @ vContext)
-        negativeScores = self._sigmoid(vKNegatives @ vContext)
+        negativeScores = self._sigmoid(vKNegatives @ vCenter)
 
         loss = (
             -np.log(positiveScore + 1e-10)

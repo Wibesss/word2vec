@@ -19,7 +19,7 @@ def trainModel(
         subsampleThreshold,
         windowSize,
         learningRateStart,
-        learningRateMinRatio,
+        learningRateMin,
         kNegatives
 ):
 
@@ -33,13 +33,13 @@ def trainModel(
         pairs = list(generateSkipgramPairs(corpus, windowSize))
         totalPairs = len(pairs)
 
-        negativeProbabilities = getNegativeProbabilities(pairs)
+        negativeProbabilities = getNegativeProbabilities(frequencies)
 
         for step, (center, context) in enumerate(pairs, start=1):
             progress = ((epoch-1) * totalPairs + step) / (epochs * totalPairs)
-            learningRate = max(learningRateStart * (1.0 - progress), learningRateStart * learningRateMinRatio)
+            learningRate = max(learningRateStart * (1.0 - progress), learningRateMin)
 
-            exclude = {context}
+            exclude = {center, context}
             negatives = sampleNegatives(negativeProbabilities, exclude, kNegatives)
 
             loss = model.trainStep(center, context, negatives, learningRate)

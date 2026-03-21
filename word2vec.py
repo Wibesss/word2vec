@@ -18,7 +18,11 @@ class Word2VecSkipGram:
 
 
     def trainStep(self, center, context, negatives, learningRate):
-        loss = self.forward(center, context, negatives)
+        loss, backwardCache, updateCache = self.forward(center, context, negatives)
+        gradients = self.backward(backwardCache)
+        gradientVCenter, gradientVContext, gradientVKNegatives = gradients
+        self.update(updateCache, gradientVCenter, gradientVContext, gradientVKNegatives, learningRate)
+        return loss
 
 
     def forward(self, center, context, negatives):
@@ -35,4 +39,27 @@ class Word2VecSkipGram:
             -np.sum(np.log(1.0-negativeScores+1e-10))
         )
 
-        return float(loss)
+        backwardCache = (vCenter, vContext, vKNegatives, positiveScore, negativeScores)
+        updateCache = (center, context, negatives)
+
+        return float(loss), backwardCache, updateCache
+
+
+    def backward(self, backwardCache):
+        vCenter, vContext, vKNegatives, positiveScore, negativeScores = backwardCache
+
+        gradientVCenter = (positiveScore-1.0) * vContext + np.sum(negativeScores[:,None] * vKNegatives, axis=0)
+
+        gradientVContext = (positiveScore - 1.0) * vCenter
+
+        gradientVKNegatives = negativeScores[:,None] * vCenter
+
+        return gradientVCenter, gradientVContext, gradientVKNegatives
+
+
+    def update(self, updateCache, gradientVCenter, gradientVContext, gradientVKNegatives, learningRate):
+        center, context, negatives = updateCache
+
+        self.centerEmbeddings[center] -= learningRate * gradientVCenter
+        self.contextEmbeddings[context] -= learningRate * gradientVContext
+        self.contextEmbeddings[negatives] -= learningRate * gradientVKNegatives

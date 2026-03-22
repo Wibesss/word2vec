@@ -1,6 +1,7 @@
 import time
+import numpy as np
 
-from processData import *
+from processData import loadData, subsample, generateSkipgramPairs, getNegativeProbabilities, sampleNegatives
 from word2vec import Word2VecSkipGram
 
 CORPUS_FILEPATH = "text8"
@@ -12,7 +13,6 @@ WINDOW_SIZE = 5
 LEARNING_RATE_START = 0.025
 LEARNING_RATE_MIN = 0.001
 K_NEGATIVES = 5
-
 LOG_EVERY = 100000
 SAVE_PATH = "skip-gram.npz"
 
@@ -37,18 +37,18 @@ def trainModel(
 
     model = Word2VecSkipGram(vocabSize, embeddingDim)
 
-    print(f"[model] vocab={len(word2index):,}  embed_dim={embeddingDim}\n  "
-          f"params={2 * len(word2index) * embeddingDim:,}\n")
+    print(f"[model] vocab={len(word2index)}  embed_dim={embeddingDim} params={2 * len(word2index) * embeddingDim}\n")
+
+    negativeProbabilities = getNegativeProbabilities(frequencies)
 
     epochLosses = []
+
 
     for epoch in range(1, epochs + 1):
         corpus = subsample(wordIds, frequencies, subsampleThreshold)
 
         pairs = list(generateSkipgramPairs(corpus, windowSize))
         totalPairs = len(pairs)
-
-        negativeProbabilities = getNegativeProbabilities(frequencies)
 
         running_loss = 0.0
         epoch_start = time.time()
@@ -83,6 +83,9 @@ def trainModel(
     )
     print(f"[save] Embeddings saved to '{savePath}'")
 
+    return model, word2index, index2word
+
+
 if __name__ == "__main__":
 
     trainModel(
@@ -94,5 +97,7 @@ if __name__ == "__main__":
         WINDOW_SIZE,
         LEARNING_RATE_START,
         LEARNING_RATE_MIN,
-        K_NEGATIVES
+        K_NEGATIVES,
+        LOG_EVERY,
+        SAVE_PATH,
     )

@@ -67,7 +67,8 @@ def print_similar(results, query: str):
 
 
 def print_analogy(results, a, b, c):
-    print(f"\n'{b}' - '{a}' + '{c}' = ?")
+    print(f"\nWord analogy")
+    print(f"'{b}' - '{a}' + '{c}' = ?")
     print(f"{'Word':<20} Similarity")
     print(f"{'-'*35}")
     for word, sim in results:

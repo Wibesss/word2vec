@@ -2,10 +2,13 @@
 
 This project is an implementation of **Word2Vec** **Skip-gram** model with **Negative Sampling** using only NumPy.
 
-Model was trained on the text8 file
+Model was trained on the text8 file as its dataset with vocabSize of 10000 and embeddingDim of 100, throughout 5 epochs
+and a learningRate of 0.025. The complete training took around 10 hours after which the model shows a pretty good understanding of some words.
+It is able to find good similarities between words and works well with word analogies.
+
+In the continuation of this file you can read more about the way the model was implemented.
 
 ---
-
 ## Table of Contents
 1. [Project Structure](#project-structure)
 2. [Quickstart](#quickstart)

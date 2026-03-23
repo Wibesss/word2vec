@@ -70,7 +70,7 @@ For example:
 |------------|-----------------------------------------------------|
 | $v_c$      | Center word vector (row of centerEmbeddings)        |
 | $v_o$      | True context word vector (row of contextEmbeddings) |
-| $v_k$      | Negative sample vector (row of $W_{out}$)           |
+| $v_k$      | Negative sample vector (row of contextEmbeddings)   |
 | $\sigma$   | Sigmoid function: $\sigma(x) = \frac{1}{1+e^{-x}}$  |
 | $K$        | Number of negative samples                          |
 | $\mathcal{L}$ | Loss function                                       |
@@ -82,7 +82,7 @@ For example:
 Because a full softmax over a vocabulary of size $V$ is $O(V)$ makes the algoritham too slow we will use Negative sampling.  
 Negative sampling replaces the full softmax with $K+1$ binary classifications where the loss function is calculated as:
 
-$$\mathcal{L} = -\log \sigma(v_c \cdot v_o) \;-\; \sum_{k=1}^{K} \log \sigma(-v_c \cdot v_k)$$
+$$\mathcal{L} = -\log \sigma(v_c \cdot v_o)-\sum_{k=1}^{K} \log \sigma(-v_c \cdot v_k)$$
 
 - **Positive term**: the true context word should have a **high** dot product with the center (label = 1)  
 - **Negative terms**: $K$ randomly sampled words should have a **low** dot product (label = 0)
@@ -118,10 +118,9 @@ function with respect to that specific vector and get the gradient for it
 
 ---
 
-**When we take the partial derivative of the loss with respect to $v_c$ we get:**
+**When we take the partial derivative of the loss with respect to $v_c$ we get:** 
 
-#### $$\frac{\partial \mathcal{L}}{\partial v_c} = \frac{\partial}{\partial v_c}(-\log \sigma(v_c \cdot v_o) \;-\; \sum_{k=1}^{K} \log \sigma(-v_c \cdot v_k))$$
-
+$$\frac{\partial \mathcal{L}}{\partial v_c} = \frac{\partial}{\partial v_c}(-\log \sigma(v_c \cdot v_o)-\sum_{k=1}^{K} \log \sigma(-v_c \cdot v_k))$$
 
 From deriving the positive term we get:
 
@@ -138,7 +137,7 @@ In the end by combining these do we get the full gradient:
 
 $$\boxed{\frac{\partial \mathcal{L}}{\partial v_c}
 = \bigl(\sigma(v_c \cdot v_o) - 1\bigr)\,v_o
-\;+\; \sum_{k=1}^{K} \sigma(v_c \cdot v_k)\,v_k}$$
++\sum_{k=1}^{K} \sigma(v_c \cdot v_k)\,v_k}$$
 
 Code implementation:
 ```
@@ -150,7 +149,7 @@ gradientVCenter = (positiveScore-1.0) * vContext + np.sum(negativeScores[:,None]
 ---
 **When we take the partial derivative of the loss with respect to $v_o$ we get:**
 
-#### $$\frac{\partial \mathcal{L}}{\partial v_o} = \frac{\partial}{\partial v_o}(-\log \sigma(v_c \cdot v_o) \;-\; \sum_{k=1}^{K} \log \sigma(-v_c \cdot v_k))$$
+$$\frac{\partial \mathcal{L}}{\partial v_o} = \frac{\partial}{\partial v_o}(-\log \sigma(v_c \cdot v_o) \;-\; \sum_{k=1}^{K} \log \sigma(-v_c \cdot v_k))$$
 
 Only the positive term involves $v_o$ so the full gradient is:
 
@@ -166,7 +165,7 @@ gradientVContext = (positiveScore - 1.0) * vCenter
 ---
 **When we take the partial derivative of the loss with respect to $v_k$ we get:**
 
-#### $$\frac{\partial \mathcal{L}}{\partial v_k} = \frac{\partial}{\partial v_k}(-\log \sigma(v_c \cdot v_o) \;-\; \sum_{k=1}^{K} \log \sigma(-v_c \cdot v_k))$$
+$$\frac{\partial \mathcal{L}}{\partial v_k} = \frac{\partial}{\partial v_k}(-\log \sigma(v_c \cdot v_o) - \sum_{k=1}^{K} \log \sigma(-v_c \cdot v_k))$$
 
 Each negative sample's term involves only its own $v_k$ which means the full gradient is:
 
